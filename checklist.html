@@ -1,14 +1,18 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Checklist - Secure Rust Guidelines</title>
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+
+
+        <!-- Custom HTML head -->
+
         <meta name="description" content="Recommendations for secure applications development with Rust">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff" />
+        <meta name="theme-color" content="#ffffff">
 
+        <link rel="icon" href="favicon.svg">
         <link rel="shortcut icon" href="favicon.png">
         <link rel="stylesheet" href="css/variables.css">
         <link rel="stylesheet" href="css/general.css">
@@ -17,8 +21,7 @@
 
         <!-- Fonts -->
         <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
@@ -26,19 +29,20 @@
         <link rel="stylesheet" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
-        
 
-        
-    </head>
-    <body class="light">
+
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">
+        <script>
             var path_to_root = "";
-            var default_theme = "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
-
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
+        <script>
             try {
                 var theme = localStorage.getItem('mdbook-theme');
                 var sidebar = localStorage.getItem('mdbook-sidebar');
@@ -54,72 +58,81 @@
         </script>
 
         <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
+        <script>
             var theme;
-            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
         </script>
 
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
         <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
-            var html = document.querySelector('html');
-            var sidebar = 'hidden';
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
             }
+            sidebar_toggle.checked = sidebar === 'visible';
             html.classList.remove('sidebar-visible');
             html.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="01_introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="02_devenv.html"><strong aria-hidden="true">2.</strong> Development Environment</a></li><li><a href="03_libraries.html"><strong aria-hidden="true">3.</strong> Libraries</a></li><li><a href="04_language.html"><strong aria-hidden="true">4.</strong> The language</a></li><li><a href="05_test_fuzz.html"><strong aria-hidden="true">5.</strong> Test and fuzzing</a></li><li class="affix"><a href="LICENCE.html">Licence</a></li><li class="affix"><a href="checklist.html" class="active">Checklist</a></li></ol>
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                
-                <div id="menu-bar" class="menu-bar">
-                    <div id="menu-bar-sticky-container">
-                        <div class="left-buttons">
-                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                                <i class="fa fa-bars"></i>
-                            </button>
-                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                                <i class="fa fa-paint-brush"></i>
-                            </button>
-                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                            </ul>
-                            
-                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                                <i class="fa fa-search"></i>
-                            </button>
-                            
-                        </div>
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
 
-                        <h1 class="menu-title">Secure Rust Guidelines</h1> 
+                    <h1 class="menu-title">Secure Rust Guidelines</h1>
 
-                        <div class="right-buttons">
-                            <a href="print.html" title="Print this book" aria-label="Print this book">
-                                <i id="print-button" class="fa fa-print"></i>
-                            </a>
-                            
-                        </div>
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
                     </div>
                 </div>
 
-                
                 <div id="search-wrapper" class="hidden">
                     <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
                     </form>
                     <div id="searchresults-outer" class="searchresults-outer hidden">
                         <div id="searchresults-header" class="searchresults-header"></div>
@@ -127,10 +140,9 @@
                         </ul>
                     </div>
                 </div>
-                
 
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
+                <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
                     document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
                     Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
@@ -140,34 +152,140 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="#checklist" id="checklist"><h1>Checklist</h1></a>
+                        <h1 id="checklist"><a class="header" href="#checklist">Checklist</a></h1>
 <ul>
 <li>
-<p>Development Environment:</p>
+<p>Development environment:</p>
 <ul>
-<li>[ ] Use a stable compilation toolchain (<a href="02_devenv.html#DENV-STABLE">DENV-STABLE</a>)</li>
-<li>[ ] Use Rust linter (cargo-clippy) (<a href="02_devenv.html#DENV-LINTER">DENV-LINTER</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Use a stable compilation toolchain (<a href="02_devenv.html#DENV-STABLE">DENV-STABLE</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Keep default values for critical variables in cargo profiles (<a href="02_devenv.html#DENV-CARGO-OPTS">DENV-CARGO-OPTS</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Keep default values for compiler environment variables when running cargo (<a href="02_devenv.html#DENV-CARGO-ENVVARS">DENV-CARGO-ENVVARS</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Use linter regularly (<a href="02_devenv.html#DENV-LINTER">DENV-LINTER</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Use Rust formatter (rustfmt) (<a href="02_devenv.html#DENV-FORMAT">DENV-FORMAT</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Manually check automatic fixes (<a href="02_devenv.html#DENV-AUTOFIX">DENV-AUTOFIX</a>)</li>
 </ul>
 </li>
 <li>
 <p>Libraries:</p>
 <ul>
-<li>[ ] Check for outdated dependencies versions (cargo-outdated) (<a href="03_libraries.html#LIBS-OUTDATED">LIBS-OUTDATED</a>)</li>
-<li>[ ] Check for security vulnerabilities report on dependencies (cargo-audit) (<a href="03_libraries.html#LIBS-AUDIT">LIBS-AUDIT</a>)</li>
-<li>[ ] Check for unsafe code in dependencies (<a href="03_libraries.html#LIBS-UNSAFE">LIBS-UNSAFE</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Check for outdated dependencies versions (cargo-outdated) (<a href="03_libraries.html#LIBS-OUTDATED">LIBS-OUTDATED</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Check for security vulnerabilities report on dependencies (cargo-audit) (<a href="03_libraries.html#LIBS-AUDIT">LIBS-AUDIT</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Check for unsafe code in dependencies (<a href="03_libraries.html#LIBS-UNSAFE">LIBS-UNSAFE</a>)</li>
 </ul>
 </li>
 <li>
-<p>The language:</p>
+<p>Language generalities:</p>
 <ul>
-<li>[ ] Zeroize memory of sensitive data after use (<a href="04_language.html#MEM-ZERO">MEM-ZERO</a>)</li>
-<li>[ ] Don't use unsafe blocks (<a href="04_language.html#LANG-UNSAFE">LANG-UNSAFE</a>)</li>
-<li>[ ] Use appropriate arithmetic operations regarding potential overflows (<a href="04_language.html#LANG-ARITH">LANG-ARITH</a>)</li>
-<li>[ ] Implement custom <code>Error</code> type, wrapping all possible errors (<a href="04_language.html#LANG-ERRWRAP">LANG-ERRWRAP</a>)</li>
-<li>[ ] Use the <code>?</code> operator and do not use the <code>try!</code> macro (<a href="04_language.html#LANG-ERRDO">LANG-ERRDO</a>)</li>
-<li>[ ] Don't use functions that can cause <code>panic!</code> (<a href="04_language.html#LANG-NOPANIC">LANG-NOPANIC</a>)</li>
-<li>[ ] Test properly array indexing or use the <code>get</code> method (<a href="04_language.html#LANG-ARRINDEXING">LANG-ARRINDEXING</a>)</li>
-<li>[ ] Handle correctly <code>panic!</code> in FFI (<a href="04_language.html#LANG-FFIPANIC">LANG-FFIPANIC</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Respect naming conventions (<a href="04_language.html#LANG-NAMING">LANG-NAMING</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Don't use unsafe blocks (<a href="04_language.html#LANG-UNSAFE">LANG-UNSAFE</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Use appropriate arithmetic operations regarding potential overflows (<a href="04_language.html#LANG-ARITH">LANG-ARITH</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Implement custom <code>Error</code> type, wrapping all possible errors (<a href="04_language.html#LANG-ERRWRAP">LANG-ERRWRAP</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Use the <code>?</code> operator and do not use the <code>try!</code> macro (<a href="04_language.html#LANG-ERRDO">LANG-ERRDO</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Don't use functions that can cause <code>panic!</code> (<a href="04_language.html#LANG-NOPANIC">LANG-NOPANIC</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Test properly array indexing or use the <code>get</code> method (<a href="04_language.html#LANG-ARRINDEXING">LANG-ARRINDEXING</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Handle correctly <code>panic!</code> in FFI (<a href="04_language.html#LANG-FFIPANIC">LANG-FFIPANIC</a>)</li>
+</ul>
+</li>
+<li>
+<p>Memory management:</p>
+<ul>
+<li><input disabled="" type="checkbox"/>
+Do not use <code>forget</code> (<a href="05_memory.html#MEM-FORGET">MEM-FORGET</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Use clippy lint to detect use of <code>forget</code> (<a href="05_memory.html#MEM-FORGET-LINT">MEM-FORGET-LINT</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Do not leak memory (<a href="05_memory.html#MEM-LEAK">MEM-LEAK</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Do release value wrapped in <code>ManuallyDrop</code> (<a href="05_memory.html#MEM-MANUALLYDROP">MEM-MANUALLYDROP</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Always call <code>from_raw</code> on <code>into_raw</code>ed value (<a href="05_memory.html#MEM-INTOFROMRAW">MEM-INTOFROMRAW</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Do not use uninitialized memory (<a href="05_memory.html#MEM-UNINIT">MEM-UNINIT</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Zero out memory of sensitive data after use (<a href="05_memory.html#MEM-ZERO">MEM-ZERO</a>)</li>
+</ul>
+</li>
+<li>
+<p>Type system:</p>
+<ul>
+<li><input disabled="" type="checkbox"/>
+Justify <code>Drop</code> implementation (<a href="06_typesystem.html#LANG-DROP">LANG-DROP</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Do not panic in <code>Drop</code> implementation (<a href="06_typesystem.html#LANG-DROP-NO-PANIC">LANG-DROP-NO-PANIC</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Do not allow cycles of reference-counted <code>Drop</code> (<a href="06_typesystem.html#LANG-DROP-NO-CYCLE">LANG-DROP-NO-CYCLE</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Do not rely only on <code>Drop</code> to ensure security (<a href="06_typesystem.html#LANG-DROP-SEC">LANG-DROP-SEC</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Justify <code>Send</code> and <code>Sync</code> implementation (<a href="06_typesystem.html#LANG-SYNC-TRAITS">LANG-SYNC-TRAITS</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Respect the invariants of standard comparison traits (<a href="06_typesystem.html#LANG-CMP-INV">LANG-CMP-INV</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Use the default method implementation of standard comparison traits (<a href="06_typesystem.html#LANG-CMP-DEFAULTS">LANG-CMP-DEFAULTS</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Derive comparison traits when possible (<a href="06_typesystem.html#LANG-CMP-DERIVE">LANG-CMP-DERIVE</a>)</li>
+</ul>
+</li>
+<li>
+<p>Foreign Function Interface:</p>
+<ul>
+<li><input disabled="" type="checkbox"/>
+Use only C-compatible types in FFI (<a href="07_ffi.html#FFI-CTYPE">FFI-CTYPE</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Use consistent types at FFI boundaries (<a href="07_ffi.html#FFI-TCONS">FFI-TCONS</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Use automatic binding generator tools (<a href="07_ffi.html#FFI-AUTOMATE">FFI-AUTOMATE</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Use portable aliases <code>c_*</code> when binding to platform-dependent types (<a href="07_ffi.html#FFI-PFTYPE">FFI-PFTYPE</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Do not use unchecked non-robust foreign values (<a href="07_ffi.html#FFI-CKNONROBUST">FFI-CKNONROBUST</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Check foreign values in Rust (<a href="07_ffi.html#FFI-CKINRUST">FFI-CKINRUST</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Do not use reference types but pointer types (<a href="07_ffi.html#FFI-NOREF">FFI-NOREF</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Do not use unchecked foreign references (<a href="07_ffi.html#FFI-CKREF">FFI-CKREF</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Check foreign pointers (<a href="07_ffi.html#FFI-CKPTR">FFI-CKPTR</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Mark function pointer types in FFI as <code>extern</code> and <code>unsafe</code> (<a href="07_ffi.html#FFI-MARKEDFUNPTR">FFI-MARKEDFUNPTR</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Check foreign function pointers (<a href="07_ffi.html#FFI-CKFUNPTR">FFI-CKFUNPTR</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Do not use incoming Rust <code>enum</code> at FFI boundary (<a href="07_ffi.html#FFI-NOENUM">FFI-NOENUM</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Use dedicated Rust types for foreign opaque types (<a href="07_ffi.html#FFI-R-OPAQUE">FFI-R-OPAQUE</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Use incomplete C/C++ <code>struct</code> pointers to make type opaque (<a href="07_ffi.html#FFI-C-OPAQUE">FFI-C-OPAQUE</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Do not use types that implement <code>Drop</code> at FFI boundary (<a href="07_ffi.html#FFI-MEM-NODROP">FFI-MEM-NODROP</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Ensure clear data ownership in FFI (<a href="07_ffi.html#FFI-MEM-OWNER">FFI-MEM-OWNER</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Wrap foreign data in memory releasing wrapper (<a href="07_ffi.html#FFI-MEM-WRAPPING">FFI-MEM-WRAPPING</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Handle <code>panic!</code> correctly in FFI (<a href="07_ffi.html#FFI-NOPANIC">FFI-NOPANIC</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Provide safe wrapping to foreign library (<a href="07_ffi.html#FFI-SAFEWRAPPING">FFI-SAFEWRAPPING</a>)</li>
+<li><input disabled="" type="checkbox"/>
+Expose dedicated C-compatible API only (<a href="07_ffi.html#FFI-CAPI">FFI-CAPI</a>)</li>
 </ul>
 </li>
 </ul>
@@ -176,13 +294,10 @@
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                        
                             <a rel="prev" href="LICENCE.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
-                        
 
-                        
 
                         <div style="clear: both"></div>
                     </nav>
@@ -190,37 +305,33 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                
-                    <a href="LICENCE.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="LICENCE.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
-                
 
-                
             </nav>
 
         </div>
 
-        
 
-        
 
-        
 
-        
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
-        
+        <script>
+            window.playground_copyable = true;
+        </script>
 
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
 
         <!-- Custom JS scripts -->
-        
 
-        
 
+    </div>
     </body>
 </html>

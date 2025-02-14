@@ -1,14 +1,18 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>The language - Secure Rust Guidelines</title>
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Language generalities - Secure Rust Guidelines</title>
+
+
+        <!-- Custom HTML head -->
+
         <meta name="description" content="Recommendations for secure applications development with Rust">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff" />
+        <meta name="theme-color" content="#ffffff">
 
+        <link rel="icon" href="favicon.svg">
         <link rel="shortcut icon" href="favicon.png">
         <link rel="stylesheet" href="css/variables.css">
         <link rel="stylesheet" href="css/general.css">
@@ -17,8 +21,7 @@
 
         <!-- Fonts -->
         <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
@@ -26,19 +29,20 @@
         <link rel="stylesheet" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
-        
 
-        
-    </head>
-    <body class="light">
+
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">
+        <script>
             var path_to_root = "";
-            var default_theme = "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
-
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
+        <script>
             try {
                 var theme = localStorage.getItem('mdbook-theme');
                 var sidebar = localStorage.getItem('mdbook-sidebar');
@@ -54,72 +58,81 @@
         </script>
 
         <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
+        <script>
             var theme;
-            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
         </script>
 
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
         <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
-            var html = document.querySelector('html');
-            var sidebar = 'hidden';
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
             }
+            sidebar_toggle.checked = sidebar === 'visible';
             html.classList.remove('sidebar-visible');
             html.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="01_introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="02_devenv.html"><strong aria-hidden="true">2.</strong> Development Environment</a></li><li><a href="03_libraries.html"><strong aria-hidden="true">3.</strong> Libraries</a></li><li><a href="04_language.html" class="active"><strong aria-hidden="true">4.</strong> The language</a></li><li><a href="05_test_fuzz.html"><strong aria-hidden="true">5.</strong> Test and fuzzing</a></li><li class="affix"><a href="LICENCE.html">Licence</a></li><li class="affix"><a href="checklist.html">Checklist</a></li></ol>
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                
-                <div id="menu-bar" class="menu-bar">
-                    <div id="menu-bar-sticky-container">
-                        <div class="left-buttons">
-                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                                <i class="fa fa-bars"></i>
-                            </button>
-                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                                <i class="fa fa-paint-brush"></i>
-                            </button>
-                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                            </ul>
-                            
-                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                                <i class="fa fa-search"></i>
-                            </button>
-                            
-                        </div>
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
 
-                        <h1 class="menu-title">Secure Rust Guidelines</h1> 
+                    <h1 class="menu-title">Secure Rust Guidelines</h1>
 
-                        <div class="right-buttons">
-                            <a href="print.html" title="Print this book" aria-label="Print this book">
-                                <i id="print-button" class="fa fa-print"></i>
-                            </a>
-                            
-                        </div>
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
                     </div>
                 </div>
 
-                
                 <div id="search-wrapper" class="hidden">
                     <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
                     </form>
                     <div id="searchresults-outer" class="searchresults-outer hidden">
                         <div id="searchresults-header" class="searchresults-header"></div>
@@ -127,10 +140,9 @@
                         </ul>
                     </div>
                 </div>
-                
 
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
+                <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
                     document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
                     Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
@@ -140,61 +152,49 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="#the-rust-language" id="the-rust-language"><h1>The Rust language</h1></a>
-<a class="header" href="#generalities" id="generalities"><h2>Generalities</h2></a>
-<a class="header" href="#naming" id="naming"><h3>Naming</h3></a>
-<p><mark>TODO</mark>: recommendations about correctly naming things (RFC 430).</p>
-<a class="header" href="#memory-management" id="memory-management"><h3>Memory management</h3></a>
-<p><mark>TODO</mark>: explain safe allocations/deallocations, ownership/borrowing,
-and identify language constructs that may break memory safety (for instance,
-unsound behaviors in older versions of the compiler).</p>
-<p>By default, Rust forces all values to be initialized, preventing the use of
-uninitialized memory (except if using <code>std::mem::uninitialized</code>).
-However, zeroing memory is useful for sensitive variables, especially if the
-Rust code is used through FFI.</p>
+                        <h1 id="language-generalities"><a class="header" href="#language-generalities">Language generalities</a></h1>
+<h2 id="naming"><a class="header" href="#naming">Naming</a></h2>
+<p>As of now, the standard library is the de facto standard for naming things in
+the Rust world. However, an effort has been made to formalize it, first in
+<a href="https://github.com/rust-lang/rfcs/blob/master/text/0430-finalizing-naming-conventions.md">RFC 430</a>, then in the <a href="https://rust-lang.github.io/api-guidelines/">Rust API Guidelines</a>.</p>
+<p>The basic rule consists in using :</p>
+<ul>
+<li><code>UpperCamelCase</code> for types, traits, enum variants,</li>
+<li><code>snake_case</code> for functions, methods, macros, variables and modules,</li>
+<li><code>SCREAMING_SNAKE_CASE</code> for statics and constants,</li>
+<li><code>'lowercase</code> for lifetimes.</li>
+</ul>
+<p>The <a href="https://rust-lang.github.io/api-guidelines/">Rust API Guidelines</a> also prescribes more precise naming conventions for
+some particular constructions:</p>
+<ul>
+<li>(C-CONV) for conversion methods (<code>as_</code>, <code>to_</code>, <code>into_</code>),</li>
+<li>(C-GETTER) for getters,</li>
+<li>(C-ITER) for iterator-producing methods,</li>
+<li>(C-ITER-TY) for iterator types,</li>
+<li>(C-FEATURE) for feature naming,</li>
+<li>(C-WORD-ORDER) for word order consistency.</li>
+</ul>
 <blockquote>
-<a class="header" href="#rule-a-idmem-zeroamem-zero" id="rule-a-idmem-zeroamem-zero"><h3>Rule <a id="MEM-ZERO"></a>MEM-ZERO:</h3></a>
-<p>Variables containing sensitive data must be zeroized after use, using
-functions that will not be removed by the compiler optimizations, like
-<code>std::ptr::write_volatile</code> or the <code>zeroize</code> crate.</p>
-<p>The <code>std::mem::uninitialized</code> function must not be used, or explicitly
-justified when necessary.</p>
+<h3 id="rule-lang-naming"><a class="header" href="#rule-lang-naming">Rule <a id="LANG-NAMING"></a>LANG-NAMING</a></h3>
+<p>Development of a secure application must follow the naming conventions
+outlined in the <a href="https://rust-lang.github.io/api-guidelines/">Rust API Guidelines</a>.</p>
 </blockquote>
-<p>The following code shows how to define an integer type that will be set to
-0 when freed, using the <code>Drop</code> trait:</p>
-<pre><pre class="playpen"><code class="language-rust">/// Example: u32 newtype, set to 0 when freed
-pub struct ZU32(pub u32);
-
-impl Drop for ZU32 {
-    fn drop(&amp;mut self) {
-        println!(&quot;zeroing memory&quot;);
-        unsafe{ ::std::ptr::write_volatile(&amp;mut self.0, 0) };
-    }
-}
-
-# fn main() {
-{
-    let i = ZU32(42);
-    // ...
-} // i is freed here
-# }
-</code></pre></pre>
-<a class="header" href="#unsafe-code" id="unsafe-code"><h3>Unsafe code</h3></a>
+<h2 id="unsafe-code"><a class="header" href="#unsafe-code">Unsafe code</a></h2>
 <p>The joint utilization of the type system and the ownership system aims to
-enforce safety regarding the memory management in Rust's programs. So the
-language aims to avoid memory overflows, null or invalid pointer constructions,
-and data races.
-To perform risky actions such as system calls, type coercions, or memory
-pointers direct manipulations, the language provides the <code>unsafe</code> keyword.</p>
+enforce safety regarding memory management in Rust's programs. So the language
+aims to avoid memory overflows, null or invalid pointer constructions, and data
+races.
+To perform risky actions such as system calls, type coercions, or direct
+manipulations of memory pointers, the language provides the <code>unsafe</code> keyword.</p>
 <blockquote>
-<a class="header" href="#rule-a-idlang-unsafealang-unsafe" id="rule-a-idlang-unsafealang-unsafe"><h3>Rule <a id="LANG-UNSAFE"></a>LANG-UNSAFE:</h3></a>
+<h3 id="rule-lang-unsafe"><a class="header" href="#rule-lang-unsafe">Rule <a id="LANG-UNSAFE"></a>LANG-UNSAFE</a></h3>
 <p>For a secured development, the <code>unsafe</code> blocks must be avoided. Afterward,
 we list the only cases where <code>unsafe</code> may be used, provided that they come
 with a proper justification:</p>
 <ul>
 <li>
 <p>The Foreign Function Interface (FFI) of Rust allows for describing
-functions whose implementation is written in C, using the <code>extern &quot;C&quot;</code>
+functions whose implementations are written in C, using the <code>extern "C"</code>
 prefix. To use such a function, the <code>unsafe</code> keyword is required. “Safe”
 wrapper shall be defined to safely and seamlessly call C code.</p>
 </li>
@@ -213,71 +213,74 @@ arguments, that are unavoidable. For instance, this happens when a function
 tries to dereference a pointer passed as an argument.</p>
 </li>
 </ul>
-<p>With the exception of these cases, <code>#[forbid(unsafe_code)]</code> must appear in
-<code>main.rs</code> to generate compilation errors if <code>unsafe</code> is used in the code base.</p>
+<p>With the exception of these cases, <code>#![forbid(unsafe_code)]</code> must appear in
+the crate root (typically <code>main.rs</code> or <code>lib.rs</code>) to generate compilation
+errors if <code>unsafe</code> is used in the code base.</p>
 </blockquote>
-<a class="header" href="#integer-overflows" id="integer-overflows"><h3>Integer overflows</h3></a>
-<p>Although some verification is performed by Rust regarding the potential
-integer overflows, precautions should be taken when executing arithmetic
-operations on integers.</p>
+<h2 id="integer-overflows"><a class="header" href="#integer-overflows">Integer overflows</a></h2>
+<p>Although some verification is performed by Rust regarding potential integer
+overflows, precautions should be taken when executing arithmetic operations on
+integers.</p>
 <p>In particular, it should be noted that using debug or release compilation
 profile changes integer overflow behavior. In debug configuration, overflow
-cause the termination of the program (<code>panic</code>), whereas in the release configuration
-the computed value silently wraps around the maximum value that can be stored.</p>
+cause the termination of the program (<code>panic</code>), whereas in the release
+configuration the computed value silently wraps around the maximum value that
+can be stored.</p>
 <p>This last behavior can be made explicit by using the <code>Wrapping</code> generic type,
 or the <code>overflowing_&lt;op&gt;</code> and <code>wrapping_&lt;op&gt;</code> operations on integers
 (the <code>&lt;op&gt;</code> part being <code>add</code>, <code>mul</code>, <code>sub</code>, <code>shr</code>, etc.).</p>
-<pre><pre class="playpen"><code class="language-rust">use std::num::Wrapping;
-# use std::panic;
+<pre><pre class="playground"><code class="language-rust">use std::num::Wrapping;
+<span class="boring">use std::panic;
+</span>
+<span class="boring">fn main() {
+</span>let x: u8 = 242;
 
-# fn main() {
-let x: u8 = 242;
-
-# let result = panic::catch_unwind(|| {
-println!(&quot;{}&quot;, x + 50);                      // panics in debug, prints 36 in release.
-# });
-# if result.is_err() { println!(&quot;panic&quot;); }
-println!(&quot;{}&quot;, x.overflowing_add(50).0);     // always prints 36.
-println!(&quot;{}&quot;, x.wrapping_add(50));          // always prints 36.
-println!(&quot;{}&quot;, Wrapping(x) + Wrapping(50));  // always prints 36.
+<span class="boring">let result = panic::catch_unwind(|| {
+</span>println!("{}", x + 50);                      // panics in debug, prints 36 in release.
+<span class="boring">});
+</span><span class="boring">if result.is_err() { println!("panic"); }
+</span>println!("{}", x.overflowing_add(50).0);     // always prints 36.
+println!("{}", x.wrapping_add(50));          // always prints 36.
+println!("{}", Wrapping(x) + Wrapping(50));  // always prints 36.
 
 // always panics:
 let (res, c) = x.overflowing_add(50);
-# let result = panic::catch_unwind(|| {
-if c { panic!(&quot;custom error&quot;); }
-else { println!(&quot;{}&quot;, res); }
-# });
-# if result.is_err() { println!(&quot;panic&quot;); }
-# }
-</code></pre></pre>
+<span class="boring">let result = panic::catch_unwind(|| {
+</span>if c { panic!("custom error"); }
+else { println!("{}", res); }
+<span class="boring">});
+</span><span class="boring">if result.is_err() { println!("panic"); }
+</span><span class="boring">}</span></code></pre></pre>
 <blockquote>
-<a class="header" href="#rule-a-idlang-arithalang-arith" id="rule-a-idlang-arithalang-arith"><h3>Rule <a id="LANG-ARITH"></a>LANG-ARITH:</h3></a>
+<h3 id="rule-lang-arith"><a class="header" href="#rule-lang-arith">Rule <a id="LANG-ARITH"></a>LANG-ARITH</a></h3>
 <p>When assuming that an arithmetic operation can produce an overflow, the
 specialized functions <code>overflowing_&lt;op&gt;</code>, <code>wrapping_&lt;op&gt;</code>, or the
 <code>Wrapping</code> type must be used.</p>
 </blockquote>
-<a class="header" href="#type-system" id="type-system"><h2>Type system</h2></a>
-<p><mark>TODO</mark>: identify pitfalls with the type system (for instance,
-misunderstanding of which code is actually executed when implementing complex
-patterns with traits).</p>
-<a class="header" href="#error-handling" id="error-handling"><h2>Error handling</h2></a>
-<p><mark>TODO</mark>: explicit good practices in error handling.</p>
+<h2 id="error-handling"><a class="header" href="#error-handling">Error handling</a></h2>
+<!-- <mark>TODO</mark>: explicit good practices in error handling. -->
 <p>The <code>Result</code> type is the preferred way of handling functions that can fail.
 A <code>Result</code> object must be tested, and never ignored.</p>
 <blockquote>
-<a class="header" href="#recommendation-a-idlang-errwrapalang-errwrap" id="recommendation-a-idlang-errwrapalang-errwrap"><h3>Recommendation <a id="LANG-ERRWRAP"></a>LANG-ERRWRAP:</h3></a>
-<p>A crate can implement its own Error type, wrapping all possible errors.
+<h3 id="recommendation-lang-errwrap"><a class="header" href="#recommendation-lang-errwrap">Recommendation <a id="LANG-ERRWRAP"></a>LANG-ERRWRAP</a></h3>
+<p>A crate can implement its own <code>Error</code> type, wrapping all possible errors.
 It must be careful to make this type exception-safe (RFC 1236), and implement
 <code>Error + Send + Sync + 'static</code> as well as <code>Display</code>.</p>
 </blockquote>
 <blockquote>
-<a class="header" href="#recommendation-a-idlang-errdoalang-errdo" id="recommendation-a-idlang-errdoalang-errdo"><h3>Recommendation <a id="LANG-ERRDO"></a>LANG-ERRDO:</h3></a>
+<h3 id="recommendation-lang-errdo"><a class="header" href="#recommendation-lang-errdo">Recommendation <a id="LANG-ERRDO"></a>LANG-ERRDO</a></h3>
 <p>The <code>?</code> operator should be used to improve readability of code.
 The <code>try!</code> macro should not be used.</p>
 </blockquote>
-<p>The <a href="https://crates.io/crates/error-chain">error-chain</a> and
-<a href="https://crates.io/crates/failure">failure</a> crates can be used to wrap errors.</p>
-<a class="header" href="#panics" id="panics"><h3>Panics</h3></a>
+<p>Third-party crates may be used to facilitate error handling. Most of them
+(notably <a href="https://crates.io/crates/failure">failure</a>, <a href="https://crates.io/crates/snafu">snafu</a>, <a href="https://crates.io/crates/thiserror">thiserror</a>) address the creation of new custom
+error types that implement the necessary traits and allow wrapping other
+errors.</p>
+<p>Another approach (notably proposed in the <a href="https://crates.io/crates/anyhow">anyhow</a> crate) consists in an automatic
+wrapping of errors into a single universal error type. Such wrappers should not
+be used in libraries and complex systems because they do not allow developers to
+provide context to the wrapped error.</p>
+<h3 id="panics"><a class="header" href="#panics">Panics</a></h3>
 <p>Explicit error handling (<code>Result</code>) should always be preferred instead of calling
 <code>panic</code>.  The cause of the error should be available, and generic errors should
 be avoided.</p>
@@ -285,78 +288,62 @@ be avoided.</p>
 fail and cause the code to panic.</p>
 <p>Common patterns that can cause panics are:</p>
 <ul>
-<li>using <code>unwrap</code> or <code>expect</code></li>
-<li>using <code>assert</code></li>
-<li>an unchecked access to an array</li>
-<li>integer overflow (in debug mode)</li>
-<li>division by zero</li>
-<li>large allocations</li>
-<li>string formatting using <code>format!</code></li>
+<li>using <code>unwrap</code> or <code>expect</code>,</li>
+<li>using <code>assert</code>,</li>
+<li>an unchecked access to an array,</li>
+<li>integer overflow (in debug mode),</li>
+<li>division by zero,</li>
+<li>large allocations,</li>
+<li>string formatting using <code>format!</code>.</li>
 </ul>
 <blockquote>
-<a class="header" href="#rule-a-idlang-nopanicalang-nopanic" id="rule-a-idlang-nopanicalang-nopanic"><h3>Rule <a id="LANG-NOPANIC"></a>LANG-NOPANIC:</h3></a>
+<h3 id="rule-lang-nopanic"><a class="header" href="#rule-lang-nopanic">Rule <a id="LANG-NOPANIC"></a>LANG-NOPANIC</a></h3>
 <p>Functions or instructions that can cause the code to panic at runtime must not
 be used.</p>
 </blockquote>
 <blockquote>
-<a class="header" href="#rule-a-idlang-arrindexingalang-arrindexing" id="rule-a-idlang-arrindexingalang-arrindexing"><h3>Rule <a id="LANG-ARRINDEXING"></a>LANG-ARRINDEXING:</h3></a>
+<h3 id="rule-lang-arrindexing"><a class="header" href="#rule-lang-arrindexing">Rule <a id="LANG-ARRINDEXING"></a>LANG-ARRINDEXING</a></h3>
 <p>Array indexing must be properly tested, or the <code>get</code> method should be used to
 return an <code>Option</code>.</p>
 </blockquote>
-<p><mark>TODO</mark> Check if the <a href="https://github.com/dtolnay/no-panic">no_panic</a>
+<!--
+<mark>TODO</mark> Check if the [no_panic](https://github.com/dtolnay/no-panic)
 crate can catch all cases. Drawback: all functions need to be marked as
-<code>#[no_panic]</code>.</p>
+`#[no_panic]`.
+-->
 <!--
 <mark>TODO</mark> Another possibility:
 [rustig](https://github.com/Technolution/rustig) (doesn't build here)
 -->
-<a class="header" href="#ffi-and-panics" id="ffi-and-panics"><h3>FFI and panics</h3></a>
+<h3 id="ffi-and-panics"><a class="header" href="#ffi-and-panics">FFI and panics</a></h3>
 <p>When calling Rust code from another language (for ex. C), the Rust code must
 be careful to never panic.
-Unwinding from Rust code into foreign code results in undefined behavior.</p>
+Stack unwinding from Rust code into foreign code results in undefined behavior.</p>
 <blockquote>
-<a class="header" href="#rule-a-idlang-ffipanicalang-ffipanic" id="rule-a-idlang-ffipanicalang-ffipanic"><h3>Rule <a id="LANG-FFIPANIC"></a>LANG-FFIPANIC:</h3></a>
+<h3 id="rule-lang-ffipanic"><a class="header" href="#rule-lang-ffipanic">Rule <a id="LANG-FFIPANIC"></a>LANG-FFIPANIC</a></h3>
 <p>Rust code called from FFI must either ensure the function cannot panic, or use
 <code>catch_unwind</code> or the <code>std::panic</code> module to ensure the rust code will not
 abort or return in an unstable state.</p>
 </blockquote>
 <p>Note that <code>catch_unwind</code> will only catch unwinding panics, not those that abort
 the process.</p>
-<a class="header" href="#standard-library-traits" id="standard-library-traits"><h2>Standard library traits</h2></a>
-<ul>
-<li>
-<p>Drop <mark>TODO</mark></p>
-</li>
-<li>
-<p>The <code>Send</code> and <code>Sync</code> traits are marker traits that allow implementors
-to specify respectively that a value can be sent (moved) to another thread and
-that a value be shared through a shared reference. They both are unsafe traits,
-that should be used. Moreover, the <code>unsafe</code> keyword is necessary for a type
-to implement those traits.</p>
-</li>
-<li>
-<p>PartialOrd, Ord, Eq <mark>TODO</mark></p>
-</li>
-</ul>
-<a class="header" href="#macros" id="macros"><h2>Macros</h2></a>
-<p><mark>TODO</mark>: cyclomatic complexity of the macro expanded code, recursion
-limits, ...</p>
+<!-- ## Macros -->
+<!--
+<mark>TODO</mark>: cyclomatic complexity of the macro expanded code, recursion
+limits, ...
+-->
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                        
                             <a rel="prev" href="03_libraries.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
-                        
 
-                        
-                            <a rel="next" href="05_test_fuzz.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="05_memory.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
-                        
 
                         <div style="clear: both"></div>
                     </nav>
@@ -364,41 +351,36 @@ limits, ...</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                
-                    <a href="03_libraries.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="03_libraries.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
-                
 
-                
-                    <a href="05_test_fuzz.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="05_memory.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
-                
             </nav>
 
         </div>
 
-        
 
-        
 
-        
 
-        
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
-        
+        <script>
+            window.playground_copyable = true;
+        </script>
 
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
 
         <!-- Custom JS scripts -->
-        
 
-        
 
+    </div>
     </body>
 </html>
