@@ -24,28 +24,41 @@
         <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
 
-        <!-- Provide site root to javascript -->
+        <!-- Provide site root and default themes to javascript -->
         <script>
-            var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc.js"></script>
     </head>
     <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
     <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
 
                 if (theme.startsWith('"') && theme.endsWith('"')) {
                     localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
@@ -59,7 +72,8 @@
 
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script>
-            var theme;
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             const html = document.documentElement;
@@ -72,17 +86,20 @@
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
+                sidebar_toggle.checked = false;
             }
-            sidebar_toggle.checked = sidebar === 'visible';
-            html.classList.remove('sidebar-visible');
-            html.classList.add("sidebar-" + sidebar);
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
@@ -109,13 +126,14 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -132,7 +150,12 @@
 
                 <div id="search-wrapper" class="hidden">
                     <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
                     </form>
                     <div id="searchresults-outer" class="searchresults-outer hidden">
                         <div id="searchresults-header" class="searchresults-header"></div>
@@ -159,7 +182,7 @@ Entre autres choses, il permet de basculer entre différentes variantes de la
 chaîne d'outils (<em>stable</em>, <em>beta</em>, <em>nightly</em>), de gérer l'installation des
 composants additionnels et de maintenir le tout à jour.</p>
 <blockquote>
-<h3 id="attention"><a class="header" href="#attention">Attention</a></h3>
+<p><strong>Attention</strong></p>
 <p>Du point de vue de la sécurité, <code>rustup</code> effectue tous les téléchargements en
 HTTPS, mais ne valide pas les signatures des fichiers téléchargés. Les
 protections contre les attaques par déclassement, le <em>pinning</em> de certificats
@@ -181,7 +204,7 @@ deviennent alors fortement liées à une édition en particulier. Dans le reste 
 ce guide, un effort sera réalisé pour mettre en évidence les règles qui ne
 s'appliqueraient qu'à certaines éditions de Rust en particulier.</p>
 <blockquote>
-<h3 id="note"><a class="header" href="#note">Note</a></h3>
+<p><strong>Note</strong></p>
 <p>Aucune édition spécifique n'est recommandée, tant que le développement se
 conforme aux recommandations exprimées à propos des fonctionnalités que
 l'édition utilisée propose.</p>
@@ -211,7 +234,7 @@ $
 </code></pre>
 <!-- -->
 <blockquote>
-<h3 id="règle-denv-stable"><a class="header" href="#règle-denv-stable">Règle <a id="DENV-STABLE"></a>DENV-STABLE</a></h3>
+<p><strong>Règle <a id="DENV-STABLE"></a>DENV-STABLE</strong></p>
 <p>Le développement d'applications sécurisées doit être mené en utilisant la
 chaîne d'outils dans sa version <em>stable</em>, afin de limiter les potentiels
 <em>bugs</em> à la compilation, à l'exécution et lors de l'utilisation d'outils
@@ -250,7 +273,7 @@ permet notamment de :</p>
 forme de sous-commandes.</li>
 </ul>
 <blockquote>
-<h3 id="attention-1"><a class="header" href="#attention-1">Attention</a></h3>
+<p><strong>Attention</strong></p>
 <p>Tout comme <code>rustup</code>, <code>cargo</code> effectue tous les téléchargements en HTTPS, mais
 ne valide pas l'index du registre. Des discussions sont en cours pour
 déterminer le meilleur moyen de protéger et de valider les <em>crates</em>. Pour le
@@ -277,7 +300,7 @@ vérifications (par exemple, les
 <a href="./04_language.html#integer-overflows">vérifications de dépassements d'entiers</a>)
 est utilisé.</p>
 <blockquote>
-<h3 id="règle-denv-cargo-opts"><a class="header" href="#règle-denv-cargo-opts">Règle <a id="DENV-CARGO-OPTS"></a>DENV-CARGO-OPTS</a></h3>
+<p><strong>Règle <a id="DENV-CARGO-OPTS"></a>DENV-CARGO-OPTS</strong></p>
 <p>Les variables <code>debug-assertions</code> et <code>overflow-checks</code> ne doivent pas être
 modifiées dans les sections de profils de développement (<code>[profile.dev]</code> and
 <code>[profile.test]</code>).</p>
@@ -294,7 +317,7 @@ exemple pour générer une partie du code ou pour invoquer un outil externe avan
 la compilation, il est préférable d'utiliser la fonctionnalité de <em>scripts de
 compilation</em> de Cargo.</p>
 <blockquote>
-<h3 id="règle-denv-cargo-envvars"><a class="header" href="#règle-denv-cargo-envvars">Règle <a id="DENV-CARGO-ENVVARS"></a>DENV-CARGO-ENVVARS</a></h3>
+<p><strong>Règle <a id="DENV-CARGO-ENVVARS"></a>DENV-CARGO-ENVVARS</strong></p>
 <p>Les variables d'environnement <code>RUSTC</code>, <code>RUSTC_WRAPPER</code> et <code>RUSTFLAGS</code> ne
 doivent pas être modifiées lorsque Cargo est appelé pour compiler un projet.</p>
 </blockquote>
@@ -311,7 +334,7 @@ développeur avant d'appliquer la réparation suggérée par <code>clippy</code>
 particulier dans le cas des <em>lints</em> de la catégorie <code>clippy::nursery</code> puisque
 ceux-ci sont encore en cours de développement et de mise au point.</p>
 <blockquote>
-<h3 id="règle-denv-linter"><a class="header" href="#règle-denv-linter">Règle <a id="DENV-LINTER"></a>DENV-LINTER</a></h3>
+<p><strong>Règle <a id="DENV-LINTER"></a>DENV-LINTER</strong></p>
 <p>Un <em>linter</em> comme <code>clippy</code> doit être utilisé régulièrement tout au long du
 développement d'une application sécurisée.</p>
 </blockquote>
@@ -338,9 +361,9 @@ max_width = 120
 single_line_if_else_max_width = 40
 </code></pre>
 <p>Pour plus d'informations à propos des règles de convention de style que
-<code>rustfmt</code> propose, voir le <a href="https://github.com/rust-dev-tools/fmt-rfcs/blob/master/guide/guide.md"><em>Rust Style Guide</em></a>.</p>
+<code>rustfmt</code> propose, voir le <a href="https://doc.rust-lang.org/style-guide/index.html"><em>Rust Style Guide</em></a>.</p>
 <blockquote>
-<h3 id="règle-denv-format"><a class="header" href="#règle-denv-format">Règle <a id="DENV-FORMAT"></a>DENV-FORMAT</a></h3>
+<p><strong>Règle <a id="DENV-FORMAT"></a>DENV-FORMAT</strong></p>
 <p>L'outil de formatage <code>rustfmt</code> peut être utilisé pour assurer le respect de
 règles de convention de style (comme décrites dans le fichier <code>rustfmt.toml</code>)
 sur une base de code, avec l'option <code>--check</code> ainsi qu'une revue de code
@@ -371,7 +394,7 @@ configuration, certaines réparations (comme celles proposées avec l'option
 <code>--edition-idioms</code>) sont connues pour casser la compilation ou pour modifier
 la sémantique d'un programme dans certains cas.</p>
 <blockquote>
-<h3 id="règle-denv-autofix"><a class="header" href="#règle-denv-autofix">Règle <a id="DENV-AUTOFIX"></a>DENV-AUTOFIX</a></h3>
+<p><strong>Règle <a id="DENV-AUTOFIX"></a>DENV-AUTOFIX</strong></p>
 <p>Dans le cadre du développement d'une application sécurisée, toute réparation
 automatique (comme celles appliquées par <code>rustfix</code> par exemple) doit être
 vérifiée par le développeur.</p>
@@ -428,6 +451,7 @@ portées et de leurs objectifs.</p>
         <script src="book.js"></script>
 
         <!-- Custom JS scripts -->
+
 
 
     </div>
